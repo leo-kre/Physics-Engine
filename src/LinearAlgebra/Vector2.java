@@ -12,7 +12,8 @@ public class Vector2 {
     public double distanceTo(Vector2 other) {
         double dx = other.x - this.x;
         double dy = other.y - this.y;
-        return Math.sqrt(dx * dx + dy * dy);
+
+        return Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
     }
 
 }

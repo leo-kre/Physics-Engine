@@ -1,5 +1,6 @@
 package Engine;
 
+import Graphics.Canvas;
 import Graphics.Window;
 import LinearAlgebra.Vector2;
 import PhysicsObjects.*;
@@ -19,7 +20,7 @@ public class Engine {
     private static double tpsInNs;
 
     public static final double ENGINE_SPEED = 1;
-    public static final double DAMPNIG_FACTOR = 0.4;
+    public static final double DAMPNIG_FACTOR = 0.3;
 
     // Constants
     public static final double GRAVITY = 9.81;
@@ -57,14 +58,16 @@ public class Engine {
     public static void processTick() {
         long timeInSeconds = (System.nanoTime() - lastTickTimeInNS) / 1_000_000;
 
+        Engine.physicsObjectCount = Engine.anchorArray.size() + Engine.cubeArray.size() + Engine.sphereArray.size() + Engine.springArray.size();
+
         for (Cube cube : cubeArray) {
             if(cube == currentDragObject) {
                 cube.resetPhysics();
 
-                if (Window.lastDragX != -1 && Window.lastDragY != -1) {
+                if (Window.mouseX != -1 && Window.mouseY != -1) {
                     // Calculate displacement based on the difference between current and last drag positions
-                    double displacementX = (Window.lastDragX - (double) cube.getSize() / 2) - cube.getPosition().x;
-                    double displacementY = (Window.lastDragY - (double) cube.getSize() / 2) - cube.getPosition().y;
+                    double displacementX = (Window.mouseX - (double) cube.getSize() / 2) - cube.getPosition().x;
+                    double displacementY = (Window.mouseY - (double) cube.getSize() / 2) - cube.getPosition().y;
 
                     // Update position gradually for a smoother effect
                     cube.addPositionVector(new Vector2(displacementX * DAMPNIG_FACTOR, displacementY * DAMPNIG_FACTOR));
@@ -89,10 +92,10 @@ public class Engine {
             if(sphere == currentDragObject) {
                 sphere.resetPhysics();
 
-                if (Window.lastDragX != -1 && Window.lastDragY != -1) {
+                if (Window.mouseX != -1 && Window.mouseY != -1) {
                     // Calculate displacement based on the difference between current and last drag positions
-                    double displacementX = (Window.lastDragX - (double) sphere.getSize() / 2) - sphere.getPosition().x;
-                    double displacementY = (Window.lastDragY - (double) sphere.getSize() / 2) - sphere.getPosition().y;
+                    double displacementX = (Window.mouseX - (double) sphere.getSize() / 2) - sphere.getPosition().x;
+                    double displacementY = (Window.mouseY - (double) sphere.getSize() / 2) - sphere.getPosition().y;
 
                     // Update position gradually for a smoother effect
                     sphere.addPositionVector(new Vector2(displacementX * DAMPNIG_FACTOR, displacementY * DAMPNIG_FACTOR));
@@ -112,6 +115,31 @@ public class Engine {
 
             keepPhysicsObjectInScreen(sphere);
         }
+
+        for (Anchor anchor : anchorArray) {
+            if(anchor == currentDragObject) {
+
+                if(Window.snapToGrid) {
+                    anchor.setPosition(new Vector2(findNextPointOnGrid(Window.mouseX) - anchor.getSize() / 2, findNextPointOnGrid(Window.mouseY) - (Math.sqrt(3) * anchor.getSize() / 2 / 2.56)));
+                } else {
+                    if (Window.mouseX != -1 && Window.mouseY != -1) {
+                        // Calculate displacement based on the difference between current and last drag positions
+                        double displacementX = (Window.mouseX - (double) anchor.getSize() / 2) - anchor.getPosition().x;
+                        double displacementY = (Window.mouseY - (double) anchor.getSize() / 2) - anchor.getPosition().y;
+
+                        // Update position gradually for a smoother effect
+                        anchor.addPositionVector(new Vector2(displacementX * DAMPNIG_FACTOR, displacementY * DAMPNIG_FACTOR));
+
+
+                    }
+                }
+            }
+        }
+    }
+
+    public static double findNextPointOnGrid(double x) {
+        double index = Math.floor(x / (Main.canvas.GRID_SIZE / 2));
+        return index * (Main.canvas.GRID_SIZE / 2);
     }
 
     public void spawn(Anchor _anchor) {
@@ -139,69 +167,36 @@ public class Engine {
     }
 
     public PhysicsObject findPhysicsObject(Vector2 _vector) {
-        // Bounding box size for click check
-        final int boundingBoxSize = 10;
 
-        PhysicsObject result = null;
-        double minDistance = Double.MAX_VALUE;
-
-        // Iterate through anchors and perform bounding box check
         for (Anchor anchor : anchorArray) {
             Vector2 position = anchor.getPosition();
             int size = anchor.getSize();
 
-            // Bounding box check
-            if (_vector.x >= position.x - boundingBoxSize && _vector.y >= position.y - boundingBoxSize &&
-                    _vector.x < position.x + size + boundingBoxSize && _vector.y < position.y + size + boundingBoxSize) {
-
-                // Accurate check
-                double distance = _vector.distanceTo(position);
-                if (distance < minDistance) {
-                    result = anchor;
-                    minDistance = distance;
-                }
+            if(_vector.x >= position.x && _vector.y >= position.y && _vector.x <= position.x + size && _vector.y <= position.y + size) {
+                return anchor;
             }
         }
 
-        // Iterate through cubes and perform bounding box check
         for (Cube cube : cubeArray) {
             Vector2 position = cube.getPosition();
             int size = cube.getSize();
 
-            // Bounding box check
-            if (_vector.x >= position.x - boundingBoxSize && _vector.y >= position.y - boundingBoxSize &&
-                    _vector.x < position.x + size + boundingBoxSize && _vector.y < position.y + size + boundingBoxSize) {
-
-                // Accurate check
-                double distance = _vector.distanceTo(position);
-                if (distance < minDistance) {
-                    result = cube;
-                    minDistance = distance;
-                }
+            if(_vector.x >= position.x && _vector.y >= position.y && _vector.x <= position.x + size && _vector.y <= position.y + size) {
+                return cube;
             }
         }
 
-        // Iterate through spheres and perform bounding box check
         for (Sphere sphere : sphereArray) {
             Vector2 position = sphere.getPosition();
-            int radius = sphere.getSize();
+            int radius = sphere.getSize() / 2;
+            Vector2 centerPosition = new Vector2(position.x + radius, position.y + radius);
 
-            // Bounding box check
-            if (_vector.x >= position.x - boundingBoxSize && _vector.y >= position.y - boundingBoxSize &&
-                    _vector.x < position.x + radius + boundingBoxSize && _vector.y < position.y + radius + boundingBoxSize) {
-
-                // Accurate check
-                double distance = _vector.distanceTo(position);
-                if (distance < minDistance) {
-                    result = sphere;
-                    minDistance = distance;
-                }
+            if(_vector.distanceTo(centerPosition) <= radius) {
+                return sphere;
             }
         }
 
-        // Additional checks for other object types
-
-        return result;
+        return null;
     }
 
 }

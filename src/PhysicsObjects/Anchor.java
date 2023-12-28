@@ -5,11 +5,14 @@ import LinearAlgebra.Vector2;
 public class Anchor implements PhysicsObject{
 
     public Vector2 position;
-    public int size;
 
-    public Anchor(Vector2 _position, int _size) {
+    public Anchor(Vector2 _position) {
         position = _position;
-        size = _size;
+    }
+
+    public void addPositionVector(Vector2 _vector) {
+        position.x += _vector.x;
+        position.y += _vector.y;
     }
 
     @Override
@@ -19,7 +22,7 @@ public class Anchor implements PhysicsObject{
 
     @Override
     public int getSize() {
-        return size;
+        return 30;
     }
 
     @Override

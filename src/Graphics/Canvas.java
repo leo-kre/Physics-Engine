@@ -2,6 +2,7 @@ package Graphics;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -10,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import Engine.Engine;
 import Engine.Main;
 import LinearAlgebra.Vector2;
+import PhysicsObjects.Anchor;
 import PhysicsObjects.Cube;
 import PhysicsObjects.Sphere;
 import PhysicsObjects.Spring;
@@ -17,13 +19,13 @@ import PhysicsObjects.Spring;
 public class Canvas extends JPanel {
 
     private ScheduledExecutorService scheduler;
-
     private long lastRenderTime = System.nanoTime();
-
     private BufferedImage backgroundGridImage;
 
-    private static final int GRID_SIZE = 60;
+    public static final int GRID_SIZE = 60;
     private static final int CENTER_SIZE = 10;
+
+    private static final int CURSOR_SIZE = 16;
 
     public static final Color COLOR_RED = new Color(0xB72A3F);
     public static final Color COLOR_GREEN = new Color(0x3AF86A);
@@ -48,6 +50,9 @@ public class Canvas extends JPanel {
         super.paintComponent(g);
 
         Graphics2D g2d = (Graphics2D) g;
+
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
         g2d.setStroke(new BasicStroke(2));
 
         g2d.setColor(new Color(0x0D0F11));
@@ -55,37 +60,13 @@ public class Canvas extends JPanel {
 
         g2d.drawImage(backgroundGridImage, 0, 0, null);
 
-        //engine code
+        renderObjects(g2d);
 
-        for(Cube cube : Engine.cubeArray) {
-            Vector2 position = cube.getPosition();
-            g2d.setColor(Color.WHITE);
-            g2d.fillRect((int) position.x, (int) position.y, cube.getSize(), cube.getSize());
-            g2d.setColor(Color.black);
-            g2d.fillArc((int) position.x + cube.getSize() / 2 - CENTER_SIZE / 2, (int) position.y + cube.getSize()  / 2 - CENTER_SIZE / 2, CENTER_SIZE, CENTER_SIZE, 1, 360);
-            g2d.drawRect((int) position.x, (int) position.y, cube.getSize(), cube.getSize());
 
-            if(cube == Engine.currentHoverObject) {
-                g2d.setColor(COLOR_HIGHLIGHT);
-                g2d.fillRect((int) position.x, (int) position.y, cube.getSize(), cube.getSize());
-            }
-        }
-
-        for(Sphere sphere : Engine.sphereArray) {
-            Vector2 position = sphere.getPosition();
-            g2d.setColor(Color.WHITE);
-            g2d.fillArc((int) position.x, (int) position.y, sphere.getSize(), sphere.getSize(), 1, 360);
-            g2d.setColor(Color.black);
-            g2d.fillArc((int) position.x + sphere.getSize() / 2 - CENTER_SIZE / 2, (int) sphere.position.y + sphere.radius / 2 - CENTER_SIZE / 2, CENTER_SIZE, CENTER_SIZE, 1, 360);
-            g2d.drawArc((int) position.x, (int) position.y, sphere.getSize(), sphere.getSize(), 1, 360);
-        }
-
-        for(Spring spring : Engine.springArray) {
-            g2d.setColor(Color.WHITE);
-            g2d.drawLine((int) spring.pointA.x, (int) spring.pointA.y, (int) spring.pointB.x, (int) spring.pointB.y);
-            g2d.fillArc((int) spring.pointA.x - 5, (int) spring.pointA.y - 5, 10, 10, 1, 360);
-            g2d.fillArc((int) spring.pointB.x - 5, (int) spring.pointB.y - 5, 10, 10, 1, 360);
-        }
+        g2d.setColor(COLOR_RED);
+        g2d.fillArc(Window.mouseX - CURSOR_SIZE / 2, Window.mouseY - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE, 1, 360);
+        g2d.setColor(Color.black);
+        g2d.drawArc(Window.mouseX - CURSOR_SIZE / 2, Window.mouseY - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE, 1, 360);
 
         renderDebugView(g2d);
 
@@ -94,8 +75,110 @@ public class Canvas extends JPanel {
         lastRenderTime = currentTime;
     }
 
+    private void renderObjects(Graphics2D g2d) {
+        // Rendering each object type separately
+        renderAnchor(g2d);
+        renderCubes(g2d);
+        renderSpheres(g2d);
+        renderSprings(g2d);
+    }
+
+    private void renderAnchor(Graphics2D g2d) {
+        g2d.setStroke(new BasicStroke(2));
+
+        for (Anchor anchor : Engine.anchorArray) {
+            int x = (int) anchor.getPosition().x;
+            int y = (int) anchor.getPosition().y;
+
+            int size = 30;
+
+            int[] xPoints = new int[3];
+            int[] yPoints = new int[3];
+
+// Coordinates for the vertices of the larger square
+            xPoints[0] = x;
+            yPoints[0] = y;
+
+            xPoints[1] = x + size;
+            yPoints[1] = y;
+
+            xPoints[2] = x + size / 2;
+            double v = (Math.sqrt(3) * size / 2);
+            yPoints[2] = (int) (y + v);
+
+            g2d.setColor(Color.WHITE);
+            g2d.fillPolygon(xPoints, yPoints, 3);
+            g2d.setColor(Color.BLACK);
+            g2d.drawPolygon(xPoints, yPoints, 3);
+
+            g2d.fillArc(x + size / 2 - CENTER_SIZE / 2, (int) (y + v / 2.56 - CENTER_SIZE / 2), CENTER_SIZE, CENTER_SIZE, 1, 360);
+
+            if (anchor == Engine.currentHoverObject) {
+                g2d.setColor(COLOR_HIGHLIGHT);
+                g2d.fillPolygon(xPoints, yPoints, 3);
+            }
+
+        }
+    }
+
+    private void renderCubes(Graphics2D g2d) {
+        g2d.setStroke(new BasicStroke(2));
+
+        for (Cube cube : Engine.cubeArray) {
+            g2d.setColor(Color.WHITE);
+            int size = cube.getSize();
+            int x = (int) cube.getPosition().x;
+            int y = (int) cube.getPosition().y;
+
+            // Draw the filled cube
+            g2d.fillRect(x, y, size, size);
+
+            // Draw the cube border
+            g2d.setColor(Color.black);
+            g2d.drawRect(x, y, size, size);
+            g2d.fillOval(x + size / 2 - CENTER_SIZE / 2, y + size / 2 - CENTER_SIZE / 2, CENTER_SIZE, CENTER_SIZE);
+
+            if (cube == Engine.currentHoverObject) {
+                g2d.setColor(COLOR_HIGHLIGHT);
+                g2d.fillRect(x, y, size, size);
+            }
+        }
+    }
+
+    private void renderSpheres(Graphics2D g2d) {
+        g2d.setStroke(new BasicStroke(2));
+
+        for (Sphere sphere : Engine.sphereArray) {
+            g2d.setColor(Color.WHITE);
+            int x = (int) sphere.getPosition().x;
+            int y = (int) sphere.getPosition().y;
+            int size = sphere.getSize();
+
+            g2d.fillOval(x, y, sphere.getSize(), size);
+            g2d.setColor(Color.black);
+            g2d.draw(new Ellipse2D.Double(x, y, size, size));
+            g2d.fillOval(x + size / 2 - CENTER_SIZE / 2, y + size / 2 - CENTER_SIZE / 2, CENTER_SIZE, CENTER_SIZE);
+
+            if (sphere == Engine.currentHoverObject) {
+                g2d.setColor(COLOR_HIGHLIGHT);
+                g2d.fill(new Ellipse2D.Double(x, y, size, size));
+            }
+        }
+    }
+
+    private void renderSprings(Graphics2D g2d) {
+        g2d.setColor(Color.WHITE);
+        g2d.setStroke(new BasicStroke(2));
+
+        for (Spring spring : Engine.springArray) {
+            g2d.drawLine((int) spring.pointA.x, (int) spring.pointA.y, (int) spring.pointB.x, (int) spring.pointB.y);
+            g2d.fillOval((int) spring.pointA.x - 5, (int) spring.pointA.y - 5, 10, 10);
+            g2d.fillOval((int) spring.pointB.x - 5, (int) spring.pointB.y - 5, 10, 10);
+        }
+    }
+
     private void renderDebugView(Graphics2D g2d) {
-        g2d.setFont(new Font("Arial", Font.BOLD, 15));
+        g2d.setFont(new Font("Pursia", Font.BOLD, 15));
 
         int x = 10;
         int y = 10;
@@ -171,5 +254,4 @@ public class Canvas extends JPanel {
             }
         }
     }
-
 }

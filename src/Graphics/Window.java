@@ -3,12 +3,11 @@ package Graphics;
 import Engine.Engine;
 import Engine.Main;
 import LinearAlgebra.Vector2;
-import PhysicsObjects.Cube;
-import PhysicsObjects.PhysicsObject;
 
 import javax.swing.*;
-import javax.xml.stream.FactoryConfigurationError;
+import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 
 public class Window extends JFrame {
 
@@ -19,8 +18,10 @@ public class Window extends JFrame {
 
     public static boolean isDragging = false;
 
-    public static int lastDragX;
-    public static int lastDragY;
+    public static boolean snapToGrid = false;
+
+    public static int mouseX;
+    public static int mouseY;
 
     public Window(String _title, Canvas _canvas) {
         this.setTitle(_title);
@@ -34,6 +35,12 @@ public class Window extends JFrame {
 
         this.setUndecorated(true);
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+        BufferedImage cursorImage = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+        Cursor invisibleCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImage, new Point(0, 0), "invisibleCursor");
+
+        // Set the transparent cursor for the JFrame
+        this.setCursor(invisibleCursor);
 
         addMouseMotionListener();
         addMouseListener();
@@ -54,12 +61,13 @@ public class Window extends JFrame {
                 switch (e.getKeyCode()) {
                     case KeyEvent.VK_F11 -> toggleFullScreen();
                     case KeyEvent.VK_ESCAPE -> System.exit(0);
+                    case KeyEvent.VK_CONTROL -> snapToGrid = true;
                 }
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-
+                if(e.getKeyCode() == KeyEvent.VK_CONTROL) snapToGrid = false;
             }
         });
     }
@@ -68,13 +76,16 @@ public class Window extends JFrame {
         this.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
+                mouseX = e.getX();
+                mouseY = e.getY();
                 isDragging = true;
-                lastDragX = e.getX();
-                lastDragY = e.getY();
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
+                mouseX = e.getX();
+                mouseY = e.getY();
+
                 if(!isDragging) {
                     Engine.currentHoverObject = Main.Engine.findPhysicsObject(new Vector2(e.getX(), e.getY()));
                 }
@@ -91,18 +102,13 @@ public class Window extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                Main.Engine.currentDragObject = Main.Engine.findPhysicsObject(new Vector2(e.getX(), e.getY()));
+                Engine.currentDragObject = Main.Engine.findPhysicsObject(new Vector2(e.getX(), e.getY()));
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-
                 isDragging = false;
-
-                Main.Engine.currentDragObject = null;
-
-                lastDragX = -1;
-                lastDragY = -1;
+                Engine.currentDragObject = null;
             }
 
             @Override
