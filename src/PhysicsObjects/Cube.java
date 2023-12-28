@@ -3,9 +3,9 @@ package PhysicsObjects;
 import LinearAlgebra.Rotation;
 import LinearAlgebra.Vector2;
 
-public class Cube {
+public class Cube implements PhysicsObject {
 
-    public Vector2 position;
+    public static Vector2 position;
     public Rotation rotation;
 
     public Vector2 force = new Vector2(0, 0);
@@ -13,7 +13,6 @@ public class Cube {
     public Vector2 velocity = new Vector2(0, 0);
 
     public int size;
-
     public double mass;
 
     public Cube(Vector2 _position, Rotation _rotation, int _size, double _mass) {
@@ -48,4 +47,20 @@ public class Cube {
         velocity.y += _vector.y;
     }
 
+    @Override
+    public Vector2 getPosition() {
+        return position;
+    }
+
+    @Override
+    public void setPosition(Vector2 _vector) {
+        position = _vector;
+    }
+
+    @Override
+    public void resetPhysics() {
+        force = new Vector2(0, 0);
+        acceleration = new Vector2(0, 0);
+        velocity = new Vector2(0, 0);
+    }
 }

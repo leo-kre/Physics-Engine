@@ -9,6 +9,8 @@ public class Spring {
     public Vector2 pointA;
     public Vector2 pointB;
 
+    public static boolean isInEditMode = false;
+
     public Spring(double _springConstant, Vector2 _pointA, Vector2 _pointB) {
         springConstant = _springConstant;
         pointA = _pointA;

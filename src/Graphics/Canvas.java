@@ -21,7 +21,8 @@ public class Canvas extends JPanel {
 
     private BufferedImage backgroundGridImage;
 
-    private static final int gridSize = 60;
+    private static final int GRID_SIZE = 60;
+    private static final int CENTER_SIZE = 10;
 
     public void startRender() {
         int fpsInMs = 1000 / getMonitorRefreshRate();
@@ -49,17 +50,24 @@ public class Canvas extends JPanel {
 
         //engine code
 
-        g2d.setColor(Color.WHITE);
-
         for(Cube cube : Engine.cubeArray) {
+            g2d.setColor(Color.WHITE);
             g2d.fillRect((int) cube.position.x, (int) cube.position.y, cube.size, cube.size);
+            g2d.setColor(Color.black);
+            g2d.fillArc((int) cube.position.x + cube.size / 2 - CENTER_SIZE / 2, (int) cube.position.y + cube.size  / 2 - CENTER_SIZE / 2, CENTER_SIZE, CENTER_SIZE, 1, 360);
+            g2d.drawRect((int) cube.position.x, (int) cube.position.y, cube.size, cube.size);
         }
 
         for(Sphere sphere : Engine.sphereArray) {
+            g2d.setColor(Color.WHITE);
             g2d.fillArc((int) sphere.position.x, (int) sphere.position.y, sphere.radius, sphere.radius, 1, 360);
+            g2d.setColor(Color.black);
+            g2d.fillArc((int) sphere.position.x + sphere.radius / 2 - CENTER_SIZE / 2, (int) sphere.position.y + sphere.radius / 2 - CENTER_SIZE / 2, CENTER_SIZE, CENTER_SIZE, 1, 360);
+            g2d.drawArc((int) sphere.position.x, (int) sphere.position.y, sphere.radius, sphere.radius, 1, 360);
         }
 
         for(Spring spring : Engine.springArray) {
+            g2d.setColor(Color.WHITE);
             g2d.drawLine((int) spring.pointA.x, (int) spring.pointA.y, (int) spring.pointB.x, (int) spring.pointB.y);
             g2d.fillArc((int) spring.pointA.x - 5, (int) spring.pointA.y - 5, 10, 10, 1, 360);
             g2d.fillArc((int) spring.pointB.x - 5, (int) spring.pointB.y - 5, 10, 10, 1, 360);
@@ -115,10 +123,10 @@ public class Canvas extends JPanel {
         g2d.setStroke(new BasicStroke(2));
 
         g2d.setColor(new Color(0x151819));
-        renderBackgroundGrid(g2d, gridSize / 2);
+        renderBackgroundGrid(g2d, GRID_SIZE / 2);
 
         g2d.setColor(new Color(0x202224));
-        renderBackgroundGrid(g2d, gridSize);
+        renderBackgroundGrid(g2d, GRID_SIZE);
 
         g2d.dispose();
     }

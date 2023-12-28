@@ -1,17 +1,22 @@
 package Graphics;
 
+import Engine.Main;
+import LinearAlgebra.Vector2;
+import PhysicsObjects.Cube;
+
 import javax.swing.*;
+import javax.xml.stream.FactoryConfigurationError;
 import java.awt.event.*;
 
 public class Window extends JFrame {
 
-    public float lastMX;
-    public float lastMY;
-
     public static boolean isFullscreen = true;
 
-    public static final int WINDOWED_WIDTH = 1280;
-    public static final int WINDOWED_HEIGHT = 720;
+    public static final int WINDOWED_WIDTH = 1260;
+    public static final int WINDOWED_HEIGHT = 709;
+
+    public static int lastDragX;
+    public static int lastDragY;
 
     public Window(String _title, Canvas _canvas) {
         this.setTitle(_title);
@@ -21,11 +26,12 @@ public class Window extends JFrame {
         _canvas.setSize(this.getSize());
         this.add(_canvas);
 
-        //this.setResizable(false);
+        this.setResizable(false);
 
         this.setUndecorated(true);
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
+        addMouseMotionListener();
         addMouseListener();
         addKeyListener();
 
@@ -54,17 +60,45 @@ public class Window extends JFrame {
         });
     }
 
-    void addMouseListener() {
+    void addMouseMotionListener() {
         this.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
-
+                lastDragX = e.getX();
+                lastDragY = e.getY();
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
-                float diffX = e.getX() - lastMX;
-                float diffY = e.getY() - lastMY;
+            }
+        });
+    }
+
+    void addMouseListener() {
+        this.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                Main.Engine.findPhysicsObject(new Vector2(e.getX(), e.getY()));
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                Main.Engine.currentDragObject = null;
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
             }
         });
     }

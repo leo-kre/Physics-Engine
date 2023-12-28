@@ -18,7 +18,7 @@ public class Main {
     public static long renderTime;
 
     public static void main(String[] args) {
-        Engine.start(100);
+        Engine.start(1000);
         canvas.startRender();
 
         Cube cube = new Cube(new Vector2(100, 100), new Rotation(0, 0), 100, 0.1);

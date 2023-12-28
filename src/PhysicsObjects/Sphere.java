@@ -3,9 +3,9 @@ package PhysicsObjects;
 import LinearAlgebra.Rotation;
 import LinearAlgebra.Vector2;
 
-public class Sphere {
+public class Sphere implements PhysicsObject {
 
-    public Vector2 position;
+    public static Vector2 position;
     public Rotation rotation;
 
     public Vector2 force = new Vector2(0, 0);
@@ -13,7 +13,6 @@ public class Sphere {
     public Vector2 velocity = new Vector2(0, 0);
 
     public int radius;
-
     public double mass;
 
     public Sphere(Vector2 _position, Rotation _rotation, int _radius, double _mass) {
@@ -41,5 +40,22 @@ public class Sphere {
     public void addAccelerationVector(Vector2 _vector) {
         acceleration.x += _vector.x;
         acceleration.y += _vector.y;
+    }
+
+    @Override
+    public Vector2 getPosition() {
+        return position;
+    }
+
+    @Override
+    public void setPosition(Vector2 _vector) {
+        position = _vector;
+    }
+
+    @Override
+    public void resetPhysics() {
+        force = new Vector2(0, 0);
+        acceleration = new Vector2(0, 0);
+        velocity = new Vector2(0, 0);
     }
 }
