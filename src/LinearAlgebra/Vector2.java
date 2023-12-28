@@ -8,4 +8,11 @@ public class Vector2 {
         x = _x;
         y = _y;
     }
+
+    public double distanceTo(Vector2 other) {
+        double dx = other.x - this.x;
+        double dy = other.y - this.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
 }

@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import Engine.Engine;
 import Engine.Main;
+import LinearAlgebra.Vector2;
 import PhysicsObjects.Cube;
 import PhysicsObjects.Sphere;
 import PhysicsObjects.Spring;
@@ -23,6 +24,12 @@ public class Canvas extends JPanel {
 
     private static final int GRID_SIZE = 60;
     private static final int CENTER_SIZE = 10;
+
+    public static final Color COLOR_RED = new Color(0xB72A3F);
+    public static final Color COLOR_GREEN = new Color(0x3AF86A);
+    public static final Color COLOR_BLUE = new Color(0x205CE9);
+
+    public static final Color COLOR_HIGHLIGHT = new Color(0, 0, 0, 50);
 
     public void startRender() {
         int fpsInMs = 1000 / getMonitorRefreshRate();
@@ -51,19 +58,26 @@ public class Canvas extends JPanel {
         //engine code
 
         for(Cube cube : Engine.cubeArray) {
+            Vector2 position = cube.getPosition();
             g2d.setColor(Color.WHITE);
-            g2d.fillRect((int) cube.position.x, (int) cube.position.y, cube.size, cube.size);
+            g2d.fillRect((int) position.x, (int) position.y, cube.getSize(), cube.getSize());
             g2d.setColor(Color.black);
-            g2d.fillArc((int) cube.position.x + cube.size / 2 - CENTER_SIZE / 2, (int) cube.position.y + cube.size  / 2 - CENTER_SIZE / 2, CENTER_SIZE, CENTER_SIZE, 1, 360);
-            g2d.drawRect((int) cube.position.x, (int) cube.position.y, cube.size, cube.size);
+            g2d.fillArc((int) position.x + cube.getSize() / 2 - CENTER_SIZE / 2, (int) position.y + cube.getSize()  / 2 - CENTER_SIZE / 2, CENTER_SIZE, CENTER_SIZE, 1, 360);
+            g2d.drawRect((int) position.x, (int) position.y, cube.getSize(), cube.getSize());
+
+            if(cube == Engine.currentHoverObject) {
+                g2d.setColor(COLOR_HIGHLIGHT);
+                g2d.fillRect((int) position.x, (int) position.y, cube.getSize(), cube.getSize());
+            }
         }
 
         for(Sphere sphere : Engine.sphereArray) {
+            Vector2 position = sphere.getPosition();
             g2d.setColor(Color.WHITE);
-            g2d.fillArc((int) sphere.position.x, (int) sphere.position.y, sphere.radius, sphere.radius, 1, 360);
+            g2d.fillArc((int) position.x, (int) position.y, sphere.getSize(), sphere.getSize(), 1, 360);
             g2d.setColor(Color.black);
-            g2d.fillArc((int) sphere.position.x + sphere.radius / 2 - CENTER_SIZE / 2, (int) sphere.position.y + sphere.radius / 2 - CENTER_SIZE / 2, CENTER_SIZE, CENTER_SIZE, 1, 360);
-            g2d.drawArc((int) sphere.position.x, (int) sphere.position.y, sphere.radius, sphere.radius, 1, 360);
+            g2d.fillArc((int) position.x + sphere.getSize() / 2 - CENTER_SIZE / 2, (int) sphere.position.y + sphere.radius / 2 - CENTER_SIZE / 2, CENTER_SIZE, CENTER_SIZE, 1, 360);
+            g2d.drawArc((int) position.x, (int) position.y, sphere.getSize(), sphere.getSize(), 1, 360);
         }
 
         for(Spring spring : Engine.springArray) {
@@ -89,21 +103,25 @@ public class Canvas extends JPanel {
 
         String tickTimeLabel = "tickTime:";
         String renderTimeLabel = "renderTime:";
+        String physicsObjectCountLabel = "physicsObjectCount:";
 
         FontMetrics fontMetrics = g2d.getFontMetrics();
-        int labelWidth = Math.max(fontMetrics.stringWidth(tickTimeLabel), fontMetrics.stringWidth(renderTimeLabel));
+        int w = Math.max(fontMetrics.stringWidth(tickTimeLabel), fontMetrics.stringWidth(renderTimeLabel));
+        int labelWidth = Math.max(w, fontMetrics.stringWidth(physicsObjectCountLabel));
 
         g2d.setColor(new Color(0, 0, 0, 100));
-        g2d.fillRect(x, y, labelWidth + 80 + padding, 50);
+        g2d.fillRect(x, y, labelWidth + 80 + padding, 70);
 
         g2d.setColor(Color.WHITE);
         g2d.drawString(tickTimeLabel, x + padding, y + 20);
         g2d.drawString(renderTimeLabel, x + padding, y + 40);
+        g2d.drawString(physicsObjectCountLabel, x + padding, y + 60);
 
         int valueX = x + labelWidth + 20 + padding; // Adjusted to add padding
 
         g2d.drawString(Main.tickTime + "ms", valueX, y + 20);
         g2d.drawString(Main.renderTime + "ms", valueX, y + 40);
+        g2d.drawString(String.valueOf(Engine.physicsObjectCount), valueX, y + 60);
     }
 
     private int getMonitorRefreshRate() {

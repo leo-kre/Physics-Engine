@@ -1,8 +1,10 @@
 package Graphics;
 
+import Engine.Engine;
 import Engine.Main;
 import LinearAlgebra.Vector2;
 import PhysicsObjects.Cube;
+import PhysicsObjects.PhysicsObject;
 
 import javax.swing.*;
 import javax.xml.stream.FactoryConfigurationError;
@@ -14,6 +16,8 @@ public class Window extends JFrame {
 
     public static final int WINDOWED_WIDTH = 1260;
     public static final int WINDOWED_HEIGHT = 709;
+
+    public static boolean isDragging = false;
 
     public static int lastDragX;
     public static int lastDragY;
@@ -64,12 +68,16 @@ public class Window extends JFrame {
         this.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
+                isDragging = true;
                 lastDragX = e.getX();
                 lastDragY = e.getY();
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
+                if(!isDragging) {
+                    Engine.currentHoverObject = Main.Engine.findPhysicsObject(new Vector2(e.getX(), e.getY()));
+                }
             }
         });
     }
@@ -83,12 +91,18 @@ public class Window extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                Main.Engine.findPhysicsObject(new Vector2(e.getX(), e.getY()));
+                Main.Engine.currentDragObject = Main.Engine.findPhysicsObject(new Vector2(e.getX(), e.getY()));
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
+
+                isDragging = false;
+
                 Main.Engine.currentDragObject = null;
+
+                lastDragX = -1;
+                lastDragY = -1;
             }
 
             @Override

@@ -5,7 +5,7 @@ import LinearAlgebra.Vector2;
 
 public class Cube implements PhysicsObject {
 
-    public static Vector2 position;
+    public Vector2 position;
     public Rotation rotation;
 
     public Vector2 force = new Vector2(0, 0);
@@ -53,8 +53,13 @@ public class Cube implements PhysicsObject {
     }
 
     @Override
-    public void setPosition(Vector2 _vector) {
-        position = _vector;
+    public int getSize() {
+        return size;
+    }
+
+    @Override
+    public void setPosition(Vector2 _position) {
+        position = _position;
     }
 
     @Override

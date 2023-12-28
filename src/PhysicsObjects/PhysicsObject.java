@@ -5,7 +5,9 @@ import LinearAlgebra.Vector2;
 public interface PhysicsObject {
     Vector2 getPosition();
 
-    void setPosition(Vector2 position);
+    int getSize();
+
+    void setPosition(Vector2 _position);
 
     void resetPhysics();
 }

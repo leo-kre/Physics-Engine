@@ -5,7 +5,7 @@ import LinearAlgebra.Vector2;
 
 public class Sphere implements PhysicsObject {
 
-    public static Vector2 position;
+    public Vector2 position;
     public Rotation rotation;
 
     public Vector2 force = new Vector2(0, 0);
@@ -42,14 +42,24 @@ public class Sphere implements PhysicsObject {
         acceleration.y += _vector.y;
     }
 
+    public void addVelocityVector(Vector2 _vector) {
+        velocity.x += _vector.x;
+        velocity.y += _vector.y;
+    }
+
     @Override
     public Vector2 getPosition() {
         return position;
     }
 
     @Override
-    public void setPosition(Vector2 _vector) {
-        position = _vector;
+    public int getSize() {
+        return radius;
+    }
+
+    @Override
+    public void setPosition(Vector2 _position) {
+        position = _position;
     }
 
     @Override
