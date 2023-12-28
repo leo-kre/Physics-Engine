@@ -17,7 +17,7 @@ public class Engine {
     private static long lastTickTimeInNS;
     private static double tpsInNs;
 
-    public static final double ENGINE_SPEED = 2;
+    public static final double ENGINE_SPEED = 1;
 
     // Constants
     public static final double GRAVITY = 9.81;
