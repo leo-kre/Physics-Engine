@@ -26,6 +26,7 @@ public class Engine {
     public static final double GRAVITY = 9.81;
 
     public static ArrayList<Anchor> anchorArray = new ArrayList<>();
+    public static ArrayList<Rod> rodArray = new ArrayList<>();
     public static ArrayList<Cube> cubeArray = new ArrayList<>();
     public static ArrayList<Sphere> sphereArray = new ArrayList<>();
     public static ArrayList<Spring> springArray = new ArrayList<>();
@@ -144,6 +145,10 @@ public class Engine {
 
     public void spawn(Anchor _anchor) {
         anchorArray.add(_anchor);
+    }
+
+    public void spawn(Rod _rod) {
+        rodArray.add(_rod);
     }
 
     public void spawn(Cube _cube) {

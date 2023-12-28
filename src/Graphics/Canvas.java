@@ -11,9 +11,7 @@ import java.util.concurrent.TimeUnit;
 import Engine.Engine;
 import Engine.Main;
 import LinearAlgebra.Vector2;
-import PhysicsObjects.Anchor;
-import PhysicsObjects.Cube;
-import PhysicsObjects.Sphere;
+import PhysicsObjects.*;
 import PhysicsObjects.Spring;
 
 public class Canvas extends JPanel {
@@ -62,8 +60,8 @@ public class Canvas extends JPanel {
 
         renderObjects(g2d);
 
-
         g2d.setColor(COLOR_RED);
+        g2d.setStroke(new BasicStroke(2));
         g2d.fillArc(Window.mouseX - CURSOR_SIZE / 2, Window.mouseY - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE, 1, 360);
         g2d.setColor(Color.black);
         g2d.drawArc(Window.mouseX - CURSOR_SIZE / 2, Window.mouseY - CURSOR_SIZE / 2, CURSOR_SIZE, CURSOR_SIZE, 1, 360);
@@ -77,10 +75,12 @@ public class Canvas extends JPanel {
 
     private void renderObjects(Graphics2D g2d) {
         // Rendering each object type separately
+        g2d.setStroke(new BasicStroke(2));
         renderAnchor(g2d);
         renderCubes(g2d);
         renderSpheres(g2d);
         renderSprings(g2d);
+        renderRods(g2d);
     }
 
     private void renderAnchor(Graphics2D g2d) {
@@ -95,7 +95,6 @@ public class Canvas extends JPanel {
             int[] xPoints = new int[3];
             int[] yPoints = new int[3];
 
-// Coordinates for the vertices of the larger square
             xPoints[0] = x;
             yPoints[0] = y;
 
@@ -118,6 +117,18 @@ public class Canvas extends JPanel {
                 g2d.fillPolygon(xPoints, yPoints, 3);
             }
 
+        }
+    }
+
+    private void renderRods(Graphics2D g2d) {
+        g2d.setStroke(new BasicStroke(6));
+
+        for(Rod rod : Engine.rodArray) {
+            PhysicsObject pointA = rod.pointA;
+            PhysicsObject pointB = rod.pointB;
+
+            g2d.setColor(Color.WHITE);
+            g2d.drawLine((int) pointA.getPosition().x + pointA.getSize() / 2, (int) pointA.getPosition().y + pointA.getSize() / 2, (int) pointB.getPosition().x + pointB.getSize() / 2, (int) pointB.getPosition().y + pointB.getSize() / 2);
         }
     }
 
