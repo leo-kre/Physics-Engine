@@ -1,6 +1,5 @@
 package Engine;
 
-import Graphics.Canvas;
 import Graphics.Window;
 import LinearAlgebra.Vector2;
 import PhysicsObjects.*;
@@ -61,6 +60,26 @@ public class Engine {
 
         Engine.physicsObjectCount = Engine.anchorArray.size() + Engine.cubeArray.size() + Engine.sphereArray.size() + Engine.springArray.size();
 
+        for (Anchor anchor : anchorArray) {
+            if(anchor == currentDragObject) {
+
+                if(Window.snapToGrid) {
+                    anchor.setPosition(new Vector2(findNextPointOnGrid(Window.mouseX) - anchor.getSize() / 2, findNextPointOnGrid(Window.mouseY) - (Math.sqrt(3) * anchor.getSize() / 2 / 2.56)));
+                } else {
+                    if (Window.mouseX != -1 && Window.mouseY != -1) {
+                        // Calculate displacement based on the difference between current and last drag positions
+                        double displacementX = (Window.mouseX - (double) anchor.getSize() / 2) - anchor.getPosition().x;
+                        double displacementY = (Window.mouseY - (double) anchor.getSize() / 2) - anchor.getPosition().y;
+
+                        // Update position gradually for a smoother effect
+                        anchor.addPositionVector(new Vector2(displacementX * DAMPNIG_FACTOR, displacementY * DAMPNIG_FACTOR));
+
+
+                    }
+                }
+            }
+        }
+
         for (Cube cube : cubeArray) {
             if(cube == currentDragObject) {
                 cube.resetPhysics();
@@ -111,31 +130,49 @@ public class Engine {
 
                 sphere.addPositionVector(new Vector2(sphere.velocity.x * timeInSeconds * ENGINE_SPEED / 20_000, sphere.velocity.y * timeInSeconds * ENGINE_SPEED / 20_000));
 
-                sphere.force = new Vector2(0, 0);
+                sphere.setForce(new Vector2(0, 0));
             }
 
             keepPhysicsObjectInScreen(sphere);
-        }
 
-        for (Anchor anchor : anchorArray) {
-            if(anchor == currentDragObject) {
-
-                if(Window.snapToGrid) {
-                    anchor.setPosition(new Vector2(findNextPointOnGrid(Window.mouseX) - anchor.getSize() / 2, findNextPointOnGrid(Window.mouseY) - (Math.sqrt(3) * anchor.getSize() / 2 / 2.56)));
-                } else {
-                    if (Window.mouseX != -1 && Window.mouseY != -1) {
-                        // Calculate displacement based on the difference between current and last drag positions
-                        double displacementX = (Window.mouseX - (double) anchor.getSize() / 2) - anchor.getPosition().x;
-                        double displacementY = (Window.mouseY - (double) anchor.getSize() / 2) - anchor.getPosition().y;
-
-                        // Update position gradually for a smoother effect
-                        anchor.addPositionVector(new Vector2(displacementX * DAMPNIG_FACTOR, displacementY * DAMPNIG_FACTOR));
-
-
-                    }
+            for (Sphere sphere2 : sphereArray) {
+                if(sphere != sphere2) {
+                    preventIntersection(sphere, sphere2);
                 }
             }
         }
+
+        for (Spring spring : springArray) {
+            PhysicsObject objectA = spring.pointA;
+            PhysicsObject objectB = spring.pointB;
+
+            // Calculate the displacement vector
+            Vector2 displacement = objectB.getPosition().subtract(objectA.getPosition());
+
+            double distance = displacement.magnitude();
+
+            // Ensure the spring force is not applied if the distance is close to the rest length
+            if (Math.abs(distance - spring.restLength) > 0.001) {
+                double springForceMagnitude = spring.springConstant * (distance - spring.restLength);
+
+                // Normalize the displacement vector to get the direction
+                Vector2 direction = displacement.normalize();
+
+                // Calculate the force vector magnitude
+                double forceMagnitude = Math.abs(springForceMagnitude);
+
+                // Calculate the force vectors for each object
+                Vector2 forceVectorA = direction.multiply(forceMagnitude / 2.0);
+                Vector2 forceVectorB = direction.multiply(-forceMagnitude / 2.0);
+
+                // Apply the force vectors to the objects
+                objectA.addForceVector(forceVectorA);
+                objectB.addForceVector(forceVectorB);
+            }
+        }
+
+
+
     }
 
     public static double findNextPointOnGrid(double x) {
@@ -169,6 +206,21 @@ public class Engine {
         if(position.y < 0) position.y = 0;
         if(position.x + _obj.getSize() > Main.window.getWidth()) position.x = Main.window.getWidth() - _obj.getSize();
         if(position.y + _obj.getSize() > Main.window.getHeight()) position.y = Main.window.getHeight() - _obj.getSize();
+    }
+
+    public static void preventIntersection(Sphere sphere1, Sphere sphere2) {
+        double distance = sphere1.getPosition().distanceTo(sphere2.position);
+
+        if (distance < sphere1.getSize() / 2 + sphere2.getSize() / 2) {
+            // Spheres are intersecting, adjust their positions
+            double overlap = (sphere1.getSize() / 2 + sphere2.getSize() / 2) - distance;
+            double moveX = overlap * (sphere1.position.x - sphere2.position.x) / (2 * distance);
+            double moveY = overlap * (sphere1.position.y - sphere2.position.y) / (2 * distance);
+
+            // Move spheres to prevent intersection
+            sphere1.addPositionVector(new Vector2(moveX, moveY));
+            sphere2.addPositionVector(new Vector2(-moveX, -moveY));
+        }
     }
 
     public PhysicsObject findPhysicsObject(Vector2 _vector) {

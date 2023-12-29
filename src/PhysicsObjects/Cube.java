@@ -3,6 +3,8 @@ package PhysicsObjects;
 import LinearAlgebra.Rotation;
 import LinearAlgebra.Vector2;
 
+import java.awt.color.ICC_ColorSpace;
+
 public class Cube implements PhysicsObject {
 
     public Vector2 position;
@@ -32,9 +34,39 @@ public class Cube implements PhysicsObject {
         position.y += _vector.y;
     }
 
+    @Override
+    public Vector2 getForce() {
+        return force;
+    }
+
+    @Override
+    public void setForce(Vector2 _force) {
+        force = _force;
+    }
+
+    @Override
+    public Vector2 getAcceleration() {
+        return acceleration;
+    }
+
+    @Override
+    public double getMass() {
+        return mass;
+    }
+
+    @Override
+    public void setAcceleration(Vector2 _acceleration) {
+        acceleration = _acceleration;
+    }
+
     public void addForceVector(Vector2 _vector) {
         force.x += _vector.x;
         force.y += _vector.y;
+    }
+
+    @Override
+    public Vector2 getVelocity() {
+        return velocity;
     }
 
     public void addAccelerationVector(Vector2 _vector) {

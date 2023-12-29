@@ -5,13 +5,16 @@ import LinearAlgebra.Vector2;
 public class Spring {
 
     public double springConstant;
+    public double restLength;
 
-    public Vector2 pointA;
-    public Vector2 pointB;
+    public PhysicsObject pointA;
+    public PhysicsObject pointB;
 
-    public Spring(double _springConstant, Vector2 _pointA, Vector2 _pointB) {
+    public Spring(double _springConstant, PhysicsObject _pointA, PhysicsObject _pointB) {
         springConstant = _springConstant;
         pointA = _pointA;
         pointB = _pointB;
+
+        restLength = _pointA.getPosition().distanceTo(_pointB.getPosition());
     }
 }

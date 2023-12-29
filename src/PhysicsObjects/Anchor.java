@@ -16,6 +16,35 @@ public class Anchor implements PhysicsObject{
     }
 
     @Override
+    public Vector2 getForce() {
+        return null;
+    }
+
+    @Override
+    public void setForce(Vector2 _force) {
+    }
+
+    @Override
+    public Vector2 getAcceleration() {
+        return null;
+    }
+
+    @Override
+    public double getMass() {
+        return 0;
+    }
+
+    @Override
+    public void setAcceleration(Vector2 _acceleration) {
+
+    }
+
+    @Override
+    public void addVelocityVector(Vector2 _velocity) {
+
+    }
+
+    @Override
     public Vector2 getPosition() {
         return position;
     }
@@ -32,6 +61,15 @@ public class Anchor implements PhysicsObject{
 
     @Override
     public void resetPhysics() {
-        //nothing
+    }
+
+    @Override
+    public void addForceVector(Vector2 _force) {
+
+    }
+
+    @Override
+    public Vector2 getVelocity() {
+        return null;
     }
 }

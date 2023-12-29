@@ -12,13 +12,13 @@ public class Sphere implements PhysicsObject {
     public Vector2 acceleration = new Vector2(0, 0);
     public Vector2 velocity = new Vector2(0, 0);
 
-    public int radius;
+    public int size;
     public double mass;
 
     public Sphere(Vector2 _position, Rotation _rotation, int _radius, double _mass) {
         position = _position;
         rotation = _rotation;
-        radius = _radius;
+        size = _radius;
         mass = _mass;
     }
 
@@ -32,9 +32,39 @@ public class Sphere implements PhysicsObject {
         position.y += _vector.y;
     }
 
+    @Override
+    public Vector2 getForce() {
+        return force;
+    }
+
+    @Override
+    public void setForce(Vector2 _force) {
+        force = _force;
+    }
+
+    @Override
+    public Vector2 getAcceleration() {
+        return acceleration;
+    }
+
+    @Override
+    public double getMass() {
+        return mass;
+    }
+
+    @Override
+    public void setAcceleration(Vector2 _acceleration) {
+        acceleration = _acceleration;
+    }
+
     public void addForceVector(Vector2 _vector) {
         force.x += _vector.x;
         force.y += _vector.y;
+    }
+
+    @Override
+    public Vector2 getVelocity() {
+        return velocity;
     }
 
     public void addAccelerationVector(Vector2 _vector) {
@@ -54,7 +84,7 @@ public class Sphere implements PhysicsObject {
 
     @Override
     public int getSize() {
-        return radius;
+        return size;
     }
 
     @Override

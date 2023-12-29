@@ -182,9 +182,9 @@ public class Canvas extends JPanel {
         g2d.setStroke(new BasicStroke(2));
 
         for (Spring spring : Engine.springArray) {
-            g2d.drawLine((int) spring.pointA.x, (int) spring.pointA.y, (int) spring.pointB.x, (int) spring.pointB.y);
-            g2d.fillOval((int) spring.pointA.x - 5, (int) spring.pointA.y - 5, 10, 10);
-            g2d.fillOval((int) spring.pointB.x - 5, (int) spring.pointB.y - 5, 10, 10);
+            g2d.drawLine((int) spring.pointA.getPosition().x + spring.pointA.getSize() / 2, (int) spring.pointA.getPosition().y + spring.pointA.getSize() / 2, (int) spring.pointB.getPosition().x + spring.pointB.getSize() / 2, (int) spring.pointB.getPosition().y  + spring.pointB.getSize() / 2);
+            g2d.fillOval((int) spring.pointA.getPosition().x + spring.pointA.getSize() / 2 - 5, (int) spring.pointA.getPosition().y + spring.pointA.getSize() / 2 - 5, 10, 10);
+            g2d.fillOval((int) spring.pointB.getPosition().x + spring.pointB.getSize() / 2 - 5, (int) spring.pointB.getPosition().y + spring.pointB.getSize() / 2 - 5, 10, 10);
         }
     }
 
